@@ -6,16 +6,14 @@ from pygame_version import parametri
 class Lavirint():
     def __init__(self, simulacija):
         self.zidovi = []
-        self.zidovi.append(Zid(simulacija, 0, 0, 768, 10))
-        self.zidovi.append(Zid(simulacija, 0, 758, 768, 10))
-        self.zidovi.append(Zid(simulacija, 0, 0, 10, 768))
-        self.zidovi.append(Zid(simulacija, 758, 0, 10, 768))
-        self.zidovi.append(Zid(simulacija, 200, 0, 10, 200))
-        self.zidovi.append(Zid(simulacija, 500, 200, 500, 10))
-        self.zidovi.append(Zid(simulacija, 0, 350, 350, 10))
-        self.zidovi.append(Zid(simulacija, 320, 450, 10, 200))
-        self.zidovi.append(Zid(simulacija, 500, 200, 10, 100))
-        self.zidovi.append(Zid(simulacija, 500, 600, 10, 160))
+        self.zidovi.append(Zid(simulacija, 0, 0,
+                               parametri.SIRINA, 10))
+        self.zidovi.append(Zid(simulacija, 0, parametri.VISINA-10,
+                               parametri.SIRINA, 10))
+        self.zidovi.append(Zid(simulacija, 0, 0,
+                               10, parametri.VISINA))
+        self.zidovi.append(Zid(simulacija, parametri.SIRINA-10, 0,
+                               10, parametri.VISINA))
 
 
 class Zid(pg.sprite.Sprite):

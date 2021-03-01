@@ -5,38 +5,34 @@ import pygame_version.parametri as parametri
 vec = pg.math.Vector2
 
 
-
 class Robot(pg.sprite.Sprite):
-    def __init__(self, simulacija, x, y):
+    def __init__(self, simulacija, x, y, theta):
         self.grupe = simulacija.svi_sprajtovi
         self.simulacija = simulacija
 
         pg.sprite.Sprite.__init__(self, self.grupe)
 
         self.original_image = pg.image.load("robot.png")
-        self.original_image = pg.transform.scale(self.original_image, (30, 30))
+        self.original_image = pg.transform.scale(self.original_image, (
+            parametri.DIMENZIJE_ROBOTA, parametri.DIMENZIJE_ROBOTA))
         self.image = self.original_image
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
 
-        self.rot_speed = 2
-        self.vel = vec(0, 0)
-        self.pos = vec(x, y)
-        self.rot = 45
-        self.okret_za_90 = False
-        self.orijentacija_za_90 = self.rot
-
-        self.laser_napred = Laser(self, ofset_pozicije_lasera=(parametri.DOMET_LASERA, 0))
-        self.laser_desni_prednji = Laser(self, ofset_pozicije_lasera=(parametri.DUZINA_ROBOTA*5, parametri.DOMET_LASERA))
-        self.laser_desni_zadnji = Laser(self, ofset_pozicije_lasera=(-parametri.DUZINA_ROBOTA*5, parametri.DOMET_LASERA))
-
-    def get_keys(self):
         self.rot_speed = 0
         self.vel = vec(0, 0)
+        self.vr = 0
+        self.vl = 0
+        self.R = 20
+        self.L = 150
+        self.pos = vec(x, y)
+        self.theta = theta
+        self.orijentacija_za_90 = self.theta
 
-        dp = self.laser_desni_prednji.merenje_lasera
-        dz = self.laser_desni_zadnji.merenje_lasera
+    def get_keys(self):
+        #self.rot_speed = 0
+        #self.vel = vec(0, 0)
 
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] or keys[pg.K_a]:
@@ -44,33 +40,11 @@ class Robot(pg.sprite.Sprite):
         if keys[pg.K_RIGHT] or keys[pg.K_d]:
             self.rot_speed = -5
         if keys[pg.K_UP] or keys[pg.K_w]:
-            self.vel = vec(2, 0).rotate(-self.rot)
+            self.vel = vec(2, 0).rotate(-self.theta)
         if keys[pg.K_DOWN] or keys[pg.K_s]:
-            self.vel = vec(-2 / 2, 0).rotate(-self.rot)
-        if keys[pg.K_k]:
-            # Automatsko
-            if not self.okret_za_90:
-                if dp < dz:
-                    self.rot_speed = 5*(1-1/abs(dp-dz))
-                elif dp > dz:
-                    self.rot_speed = -5*(1-1/abs(dp-dz))
+            self.vel = vec(-2 / 2, 0).rotate(-self.theta)
 
-                if self.laser_napred.merenje_lasera > 40:
-                    self.vel = vec(2, 0).rotate(-self.rot)
-                elif not self.okret_za_90:
-                    self.okret_za_90 = True
-                    self.orijentacija_za_90 = self.rot
-
-            else:
-                # Okret nalevo za ~90 stepeni
-                if (self.rot - self.orijentacija_za_90) < 90:
-                    self.rot_speed = 2
-                    self.vel = vec(0, 0)
-                else:
-                    self.okret_za_90 = False
-
-
-
+        # Provera udarca o ivicu
         new_sprite = pg.sprite.Sprite()
         new_rect = pg.Rect(self.rect)
         new_rect.x += self.vel[0]
@@ -81,8 +55,31 @@ class Robot(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
-        self.rot += self.rot_speed
+        self.theta += self.rot_speed
+        if self.theta > 360:
+            self.theta = self.theta - 360
+        elif self.theta < -360:
+            self.theta = self.theta + 360
         self.pos += self.vel
-        self.image = pg.transform.rotate(self.original_image, self.rot)
+        self.image = pg.transform.rotate(self.original_image, self.theta)
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
+
+    def set_wheel_power(self, vr, vl):
+
+        speed = self.R/2*(vr+vl)
+        omega_rad = self.R/self.L*(vr-vl)
+
+        omega = 360/(2*3.14)*omega_rad
+
+        self.vel = vec(speed, 0).rotate(-self.theta)
+
+        self.rot_speed = omega
+
+    def get_cm_pos(self):
+        x_cm = self.pos[0]/5
+        y_cm = (parametri.VISINA - (self.pos[1]))/5
+
+        return x_cm, y_cm, self.theta
+
+
