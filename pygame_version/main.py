@@ -8,6 +8,7 @@ from pygame_version import parametri
 from pygame_version.Lavirint import Lavirint
 from pygame_version.Robot import Robot
 from pygame_version.SimInfo import SimInfo
+from copy import copy
 import threading
 import time
 
@@ -26,41 +27,52 @@ class Simulacija:
         self.simuliraj = False
         self.sim_time = 0
         self.pocetak_simulacije = 0
+        self.poc_pozicija = None
         self.nova_simulacija()
+        self.trail_set = []
+        self.old_trail_set = []
 
     def nova_simulacija(self):
         self.svi_sprajtovi = pg.sprite.Group()
         self.lavirint_sprajtovi = pg.sprite.Group()
         self.lavirint = Lavirint(self)
 
-        self.robot = Robot(self, *parametri.cm_to_px(40, 40, 45))
+        self.robot = Robot(self, *parametri.cm_to_px(40, 40, 90))
 
         self.update_start_position()
+        self.robot.update()
 
     def glavna_petlja(self):
         # Simulira dok se self.simuliraj ne postavi na False
         self.crtaj()
 
+        self.sim_ticks = 0
+
         while True:
             # dt -> broj milisekundi izmedju 2 poziva .tick funkcije
-            self.dt = self.clock.tick(parametri.FPS) / 1000.0
+            self.clock.tick(parametri.FPS)
+            self.dt = 10 #ms
 
             self.dogadjaji()
             self.sim_info.manager.update(self.dt)
 
             self.crtaj()
-            self.azuriraj()
 
             if self.simuliraj:
-                self.robot.set_wheel_power(self.robot.vr, self.robot.vl)
-                trajanje = pg.time.get_ticks() - self.pocetak_simulacije
-                self.sim_info.sat.set_text(str(trajanje / 1000.0))
+                self.sim_ticks += self.dt
+                trajanje = self.sim_ticks - self.pocetak_simulacije
 
-                if trajanje > (self.sim_time*1000):
+                self.azuriraj()
+
+                self.sim_info.sat.set_text(str(trajanje))
+                self.sim_info.update_pos_diff(self.poc_pozicija, self.robot.get_cm_pos())
+
+                self.trail_set.append(copy(self.robot.pos))
+
+                if trajanje >= (self.sim_time * 1000):
                     self.simuliraj = False
+                    self.robot.set_wheel_power(0, 0)
 
-            else:
-                self.robot.set_wheel_power(0, 0)
 
     def izadji(self):
         self.tajmer_ispisa.cancel()
@@ -90,17 +102,23 @@ class Simulacija:
 
     def start_sim(self):
         self.simuliraj = True
-        self.pocetak_simulacije = pg.time.get_ticks()
-        self.robot.vr = float(self.sim_info.vr.get_text())
-        self.robot.vl = float(self.sim_info.vl.get_text())
+        self.pocetak_simulacije = self.sim_ticks
+        self.update_start_position()
+        self.robot.vr = float(self.sim_info.vr.get_text())/self.robot.reduction
+        self.robot.vl = float(self.sim_info.vl.get_text())/self.robot.reduction
+
+        self.robot.set_wheel_power(self.robot.vr, self.robot.vl)
 
         self.sim_time = float(self.sim_info.sim_time.get_text())
 
-        self.update_start_position()
+        self.old_trail_set += copy(self.trail_set)
+        self.trail_set.clear()
+
+
 
     def update_start_position(self):
-        poc_pozicija = self.robot.get_cm_pos()
-        self.sim_info.update_prev_position(*poc_pozicija)
+        self.poc_pozicija = self.robot.get_cm_pos()
+        self.sim_info.update_prev_position(*self.poc_pozicija)
 
     def update_position(self):
         self.sim_info.update_position(*self.robot.get_cm_pos())
@@ -109,6 +127,19 @@ class Simulacija:
         self.svi_sprajtovi.update()
         self.update_position()
 
+    def draw_trail(self):
+        for i in range(0, len(self.old_trail_set) - 1):
+            pg.draw.line(self.ekran, parametri.ZUTA,
+                         (self.old_trail_set[i][0], self.old_trail_set[i][1]),
+                         (self.old_trail_set[i+1][0], self.old_trail_set[i+1][1]))
+
+        for i in range(0, len(self.trail_set) - 1):
+            pg.draw.line(self.ekran, parametri.CRVENA,
+                         (self.trail_set[i][0], self.trail_set[i][1]),
+                         (self.trail_set[i + 1][0], self.trail_set[i + 1][1]))
+
+        if self.trail_set.__sizeof__() > 2000:
+            self.trail_set.pop(0)
 
     def crtaj(self):
         # Iscrtavanje sa dvostrukim baferovanjem
@@ -117,6 +148,8 @@ class Simulacija:
 
         for sprajt in self.svi_sprajtovi:
             self.ekran.blit(sprajt.image, sprajt.rect)
+
+        self.draw_trail()
 
         # Update simInfo
 

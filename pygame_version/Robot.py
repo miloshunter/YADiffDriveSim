@@ -3,6 +3,7 @@ import pygame as pg
 from pygame_version.Laser import Laser
 import pygame_version.parametri as parametri
 vec = pg.math.Vector2
+import math
 
 
 class Robot(pg.sprite.Sprite):
@@ -21,11 +22,13 @@ class Robot(pg.sprite.Sprite):
         self.rect.y = y
 
         self.rot_speed = 0
+        self.speed = 0
         self.vel = vec(0, 0)
         self.vr = 0
         self.vl = 0
-        self.R = 20
-        self.L = 150
+        self.R = 5
+        self.L = 30
+        self.reduction = 5
         self.pos = vec(x, y)
         self.theta = theta
         self.orijentacija_za_90 = self.theta
@@ -55,6 +58,12 @@ class Robot(pg.sprite.Sprite):
 
     def update(self):
         self.get_keys()
+        vx = self.speed * math.cos(math.radians(-self.theta))
+        vy = self.speed * math.sin(math.radians(-self.theta))
+        # Cm to Pixels
+        self.vel[0] = vx * 5
+        self.vel[1] = vy * 5
+
         self.theta += self.rot_speed
         if self.theta > 360:
             self.theta = self.theta - 360
@@ -67,12 +76,12 @@ class Robot(pg.sprite.Sprite):
 
     def set_wheel_power(self, vr, vl):
 
-        speed = self.R/2*(vr+vl)
+        self.speed = self.R/2*(vr+vl)
         omega_rad = self.R/self.L*(vr-vl)
 
         omega = 360/(2*3.14)*omega_rad
 
-        self.vel = vec(speed, 0).rotate(-self.theta)
+        self.vel = vec(self.speed, 0).rotate(-self.theta)
 
         self.rot_speed = omega
 

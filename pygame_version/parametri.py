@@ -13,12 +13,12 @@ ZUTA = (255, 255, 0)
 SIRINA = 1200   # 16 * 64 or 32 * 32 or 64 * 16
 VISINA = 1000  # 16 * 48 or 32 * 24 or 64 * 12
 SIRINA_MENIJA = 400
-FPS = 10
-NASLOV = "Lavirint"
+FPS = 50
+NASLOV = "YA Differential Drive Simulator"
 BOJA_POZADINE = TAMNO_SIVA
 
 # Robot
-DIMENZIJE_ROBOTA = 150
+DIMENZIJE_ROBOTA = 150  # pix = 30 cm
 DOMET_LASERA = 250
 
 
