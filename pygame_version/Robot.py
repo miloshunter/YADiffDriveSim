@@ -26,9 +26,10 @@ class Robot(pg.sprite.Sprite):
         self.vel = vec(0, 0)
         self.vr = 0
         self.vl = 0
-        self.R = 5
-        self.L = 30
-        self.reduction = 5
+        self.R = 9.8
+        self.L = 35
+        self.reduction = 1
+        self.w_tocka = 5  # rad/s
         self.pos = vec(x, y)
         self.theta = theta
         self.orijentacija_za_90 = self.theta
@@ -76,8 +77,11 @@ class Robot(pg.sprite.Sprite):
 
     def set_wheel_power(self, vr, vl):
 
-        self.speed = self.R/2*(vr+vl)
-        omega_rad = self.R/self.L*(vr-vl)
+        self.vr = self.w_tocka*self.R*vr
+        self.vl = self.w_tocka*self.R*vl
+
+        self.speed = 1/2*(self.vr+self.vl)/100  # Faktor 100 zbog diskretizacije po 10ms
+        omega_rad = 1/self.L*(self.vr-self.vl)/100
 
         omega = 360/(2*3.14)*omega_rad
 

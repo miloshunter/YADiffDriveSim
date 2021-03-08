@@ -64,21 +64,21 @@ class SimInfo:
 
         # Vr i Vl
         self.lab_vr = pygame_gui.elements.UILabel(relative_rect=pg.Rect((
-            parametri.SIRINA + 20, 5 * 50), (70, 50)),
-            text='Vr: ',
+            parametri.SIRINA + 20, 5 * 50), (100, 50)),
+            text='pwmR[0-1]: ',
             manager=self.manager)
 
         self.vr = pygame_gui.elements.UITextEntryLine(relative_rect=pg.Rect((
-            parametri.SIRINA + 90, 5 * 50), (50, 50)),
+            parametri.SIRINA + 120, 5 * 50), (50, 50)),
             manager=self.manager)
         self.vr.set_text("1.0")
         self.lab_vl = pygame_gui.elements.UILabel(relative_rect=pg.Rect((
-            parametri.SIRINA + 140, 5 * 50), (70, 50)),
-            text='Vl: ',
+            parametri.SIRINA + 170, 5 * 50), (100, 50)),
+            text='pwmL[0-1]: ',
             manager=self.manager)
 
         self.vl = pygame_gui.elements.UITextEntryLine(relative_rect=pg.Rect((
-            parametri.SIRINA + 210, 5 * 50), (50, 50)),
+            parametri.SIRINA + 270, 5 * 50), (50, 50)),
             manager=self.manager)
         self.vl.set_text("1.0")
 
@@ -102,11 +102,11 @@ class SimInfo:
             text='0.0',
             manager=self.manager)
         self.lab_t = pygame_gui.elements.UILabel(relative_rect=pg.Rect((
-            parametri.SIRINA + 260, 7 * 50), (50, 50)),
+            parametri.SIRINA + 260, 7 * 50), (70, 50)),
             text='theta: ',
             manager=self.manager)
         self.theta = pygame_gui.elements.UILabel(relative_rect=pg.Rect((
-            parametri.SIRINA + 310, 7 * 50), (50, 50)),
+            parametri.SIRINA + 330, 7 * 50), (50, 50)),
             text='0.0',
             manager=self.manager)
 
