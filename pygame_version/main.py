@@ -22,6 +22,7 @@ class Simulacija:
                                           parametri.VISINA))
         self.sim_info = SimInfo()
         self.background_image = pg.image.load("grid.png")
+
         pg.display.set_caption(parametri.NASLOV)
         self.clock = pg.time.Clock()
         self.simuliraj = False
@@ -114,8 +115,6 @@ class Simulacija:
         self.old_trail_set += copy(self.trail_set)
         self.trail_set.clear()
 
-
-
     def update_start_position(self):
         self.poc_pozicija = self.robot.get_cm_pos()
         self.sim_info.update_prev_position(*self.poc_pozicija)
@@ -138,13 +137,13 @@ class Simulacija:
                          (self.trail_set[i][0], self.trail_set[i][1]),
                          (self.trail_set[i + 1][0], self.trail_set[i + 1][1]))
 
-        if self.trail_set.__sizeof__() > 2000:
+        if self.trail_set.__sizeof__() > 10000:
             self.trail_set.pop(0)
 
     def crtaj(self):
         # Iscrtavanje sa dvostrukim baferovanjem
         self.ekran.fill(parametri.BOJA_POZADINE)
-        self.ekran.blit(self.background_image, (0, 0))
+        self.ekran.blit(self.background_image, (0, parametri.VISINA-1000))
 
         for sprajt in self.svi_sprajtovi:
             self.ekran.blit(sprajt.image, sprajt.rect)
