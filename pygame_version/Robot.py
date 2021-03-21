@@ -56,6 +56,7 @@ class Robot(pg.sprite.Sprite):
         new_sprite.rect = new_rect
         if pg.sprite.spritecollide(new_sprite, self.simulacija.lavirint_sprajtovi, False):
             self.vel = vec(0, 0)
+            self.set_wheel_power(0, 0)
 
     def update(self):
         self.get_keys()
